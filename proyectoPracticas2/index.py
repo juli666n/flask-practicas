@@ -6,6 +6,7 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456789*@localhost:3307/test'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/plantsDatabase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
