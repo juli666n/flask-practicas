@@ -1,0 +1,92 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <a class="navbar-brand" href="index.html">Control de Huerta</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="index.html">Inicio <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+
+          <a class="nav-link" href="Huerta.html">Huerta</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="Configuracion.html">Configuracion</a>
+        </li>
+        <!--<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown link
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>-->
+      </ul>
+    </div>
+  </nav>
+  <br>
+
+  <div class="form-group text-center">
+    <label for="exampleFormControlSelect1">Cultivo</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Frutas 1</option>
+      <option>Vegetales 1</option>
+      <option>Etc... 1</option>
+    </select>
+  </div>
+  <div>
+    <button type="button" class="btn btn-primary">Guardar</button>
+  </div>
+  <br>
+  <div class="text-center">
+    <h2> Caracteristicas del cultivo</h2>
+  </div>
+  <br>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">Tiempo de crecimiento</th>
+        <th scope="col">Cantidad de luz</th>
+        <th scope="col">Cantidad de humedad</th>
+        <th scope="col">Cantidad de temperatura</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 mes</td>
+        <td>1 </td>
+        <td>50</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>2 meses</td>
+        <td>3</td>
+        <td>20</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>2 semanas</td>
+        <td>10</td>
+        <td>30</td>
+        <td>50</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>
