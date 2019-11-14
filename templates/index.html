@@ -37,18 +37,23 @@
       </div>
       <div class="col-md-2"></div>
       <div class="col-md-6">
+        <h1 class="text-center">Mi Huerta</h1>
         <table class="table">
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Configuración</th>
+              <th>Temperatura</th>
+              <th>Humedad</th>
+              <th>Iluminacion</th>
             </tr>
           </thead>
           <tbody>
-            {% for d in data %}
+            {% for sensor in sensors %}
             <tr>
-              <td>{{d.name}}</td>
-              <td>{{d.param1}} - {{d.param2}} - {{d.param3}}</td>
+              <td>{{sensor.name}}</td>
+              <td>{{sensor.temperature}}</td>
+              <td>{{sensor.moisture}}</td>
+              <td>{{sensor.lux}}</td>
             </tr>
             {% endfor %}
           </tbody>

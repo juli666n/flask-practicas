@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from threading import Timer
 
 
 app = Flask(__name__)
@@ -37,6 +38,16 @@ class Config(db.Model):
     plant = db.relationship("Plant", back_populates="config")
 
 
+class Sensor(db.Model):
+
+    __tablename__ = 'sensor'
+
+    id = db.Column(db.Integer, primary_key=True)
+    temperature = db.Column(db.Integer, nullable=False)
+    moisture = db.Column(db.Integer, nullable=False)
+    lux = db.Column(db.Integer, nullable=False)
+
+
 def __repr__(self):
     return '<Config %r>' % self.param1
 
@@ -46,7 +57,9 @@ def index():
     connection = db.session.connection()
     names = connection.execute(
         "SELECT id, name FROM plant")
-    return render_template('index.html', plantNames=names)
+    sensingPlant=connection.execute(
+        "SELECT * FROM plant")
+    return render_template('index.html', plantNames=names, sensors=sensingPlant)
 
 
 @app.route('/save_plant', methods=['POST'])
