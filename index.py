@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from threading import Timer
+
 
 
 app = Flask(__name__)
@@ -58,7 +58,7 @@ def index():
     names = connection.execute(
         "SELECT id, name FROM plant")
     sensingPlant=connection.execute(
-        "SELECT * FROM plant")
+        "SELECT * FROM sensor")
     return render_template('index.html', plantNames=names, sensors=sensingPlant)
 
 
