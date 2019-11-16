@@ -1,12 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from flask_restful import Resource, Api
+from flask_marshmallow import Marshmallow
 
 
 app = Flask(__name__)
+#Config Api
+api = Api(app)
+ma = Marshmallow(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost:3307/plantsDatabase'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456789*@localhost:3307/plantsDatabase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -48,29 +52,52 @@ class Sensor(db.Model):
     lux = db.Column(db.Integer, nullable=False)
 
 
-def __repr__(self):
-    return '<Config %r>' % self.param1
+    def __repr__(self):
+        return '<Config %r>' % self.temperature
 
 
 @app.route('/')
 def index():
-    connection = db.session.connection()
-    names = connection.execute(
-        "SELECT id, name FROM plant")
-    sensingPlant=connection.execute(
-        "SELECT * FROM sensor")
-    return render_template('index.html', plantNames=names, sensors=sensingPlant)
+    return render_template('index.html')
+
+# API
+
+class PlantSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'name', 'plantTemperature', 'soilMoisture', 'lux')
 
 
-@app.route('/save_plant', methods=['POST'])
-def save_plant():
-    if request.method == 'POST':
-        config = request.form.get('configSave', '')
-        print(config)
-        confid = Config.query.filter_by(id='1').first()
-        confid.plantId = config
+class SensorSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'temperature', 'moisture', 'plantLux')
+
+
+# Init Schemas
+plant_schema = PlantSchema(many=True)
+sensor_schema = SensorSchema(many=True)
+
+class Plants(Resource):
+    def get(self):
+        connection = db.session.connection()
+        names = connection.execute("SELECT id, name FROM plant")
+        sensingPlant=connection.execute("SELECT * FROM sensor")
+        plants = plant_schema.dump(names)
+        sensors = sensor_schema.dump(sensingPlant)
+        return {
+            "plants": plants,
+            "sensors": sensors
+        }
+
+    def post(self):
+        data = request.get_json()
+        config= Config(plantId=data['plantId'])
+        db.session.add(config)
         db.session.commit()
-        return redirect('/')
+        return {
+            "msg": "Configuración cargada"
+        }
+
+api.add_resource(Plants, '/api/plants')
 
 
 if __name__ == '__main__':
