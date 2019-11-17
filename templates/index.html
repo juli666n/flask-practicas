@@ -9,13 +9,15 @@
   <title>Huerta</title>
 </head>
 
-<body>
+<body style="background-color:#DBFFB0; font-family:sans-serif" >
   <div class="container-fluid">
-    <h1 class="text-center">Plantas</h1>
+    <div class="row" style="background-color:#478055">
+      <h1>Plantas</h1>
+    </div>
 
-    <div class="row m-5">
-      <div class="col-md-4">
-        <div class="card">
+    <div class="row">
+      <div class="col-md-4" style="padding:1em">
+        <div class="card" style="background-color:#52FF60">
           <h3 class="card-title text-center mt-2">Seleccion de plantas</h3>
           <p class="text-center">Seleccione la planta que desea analizar</p>
           <div class="card-body">
@@ -24,31 +26,32 @@
                 <select class="form-control" name="plant" id="plant"></select>
               </div>
               <div class="mt-4">
-                <button class="btn btn-primary btn-block" type="submit">Guardar</button>
+                <button class="btn btn-primary btn-block" type="submit" style="background-color:#478055">Guardar</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <div class="col-md-2"></div>
-      <div class="col-md-6">
-        <h1 class="text-center">Mi Huerta</h1>
-        <table class="table" >
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Temperatura</th>
-              <th>Humedad</th>
-              <th>Iluminacion</th>
-            </tr>
-          </thead>
-          <tbody id="sensor"></tbody>
-        </table>
+      <div class="col-md" style="padding:1em">
+        <div class="card" style="background-color:#52FF60">
+          <h1 class="text-center">Mi Huerta</h1>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Temperatura</th>
+                <th>Humedad</th>
+                <th>Iluminacion</th>
+              </tr>
+            </thead>
+            <tbody id="sensor"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="{{url_for('static', filename='js/main.js')}}"></script>
-
+    <script src="{{url_for('static', filename='js/main.js')}}"></script>
 </body>
+
 </html>

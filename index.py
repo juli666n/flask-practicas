@@ -6,7 +6,7 @@ from flask_marshmallow import Marshmallow
 
 
 app = Flask(__name__)
-#Config Api
+# Config Api
 api = Api(app)
 ma = Marshmallow(app)
 
@@ -41,7 +41,6 @@ class Sensor(db.Model):
     moisture = db.Column(db.Integer, nullable=False)
     lux = db.Column(db.Integer, nullable=False)
 
-
     def __repr__(self):
         return '<Sensor %r>' % self.temperature
 
@@ -52,9 +51,11 @@ def index():
 
 # API
 
+
 class PlantSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'temperature', 'moisture', 'lux', 'is_selected')
+        fields = ('id', 'name', 'temperature',
+                  'moisture', 'lux', 'is_selected')
 
 
 class SensorSchema(ma.Schema):
@@ -66,12 +67,14 @@ class SensorSchema(ma.Schema):
 plants_schema = PlantSchema(many=True)
 sensor_schema = SensorSchema(many=True)
 
+
 class Plants(Resource):
     def get(self):
         connection = db.session.connection()
         names = connection.execute("SELECT id, name FROM plant")
         plants = plants_schema.dump(names)
         return plants
+
 
 class PlantParam(Resource):
     def get(self, id):
@@ -84,10 +87,11 @@ class PlantParam(Resource):
         data = request.get_json()
         connection = db.session.connection()
         connection.execute(
-            "UPDATE plant SET is_selected=%s WHERE id=%s", (data['is_selected'],id)
+            "UPDATE plant SET is_selected=%s WHERE id=%s", (
+                data['is_selected'], id)
         )
         connection.execute(
-            "UPDATE plant SET is_selected=%s WHERE id!=%s", (0,id)
+            "UPDATE plant SET is_selected=%s WHERE id!=%s", (0, id)
         )
         db.session.commit()
         return "seleccionada"
@@ -96,14 +100,15 @@ class PlantParam(Resource):
 class Sensors(Resource):
     def get(self):
         connection = db.session.connection()
-        sensingPlant=connection.execute("SELECT * FROM sensor")
+        sensingPlant = connection.execute("SELECT * FROM sensor")
         sensors = sensor_schema.dump(sensingPlant)
         return sensors
 
     def post(self):
         data = request.get_json()
         connection = db.session.connection()
-        connection.execute("UPDATE sensor SET temperature=%s, moisture=%s, lux=%s WHERE id=1",(data['temperature'], data['moisture'], data['lux']))
+        connection.execute("UPDATE sensor SET temperature=%s, moisture=%s, lux=%s WHERE id=1",
+                           (data['temperature'], data['moisture'], data['lux']))
         db.session.commit()
         return "Created"
 
