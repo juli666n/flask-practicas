@@ -102,8 +102,8 @@ class Sensors(Resource):
 
     def post(self):
         data = request.get_json()
-        sensor = Sensor(temperature=data['temperature'], moisture=data['moisture'], lux=data['lux'])
-        db.session.add(sensor)
+        connection = db.session.connection()
+        connection.execute("UPDATE sensor SET temperature=%s, moisture=%s, lux=%s WHERE id=1",(data['temperature'], data['moisture'], data['lux']))
         db.session.commit()
         return "Created"
 
