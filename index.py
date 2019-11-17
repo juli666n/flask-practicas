@@ -102,7 +102,7 @@ class Sensors(Resource):
 
     def post(self):
         data = request.get_json()
-        sensor = Config(temperature=data['temperature'], moisture=data['moisture'], lux=data['lux'])
+        sensor = Sensor(temperature=data['temperature'], moisture=data['moisture'], lux=data['lux'])
         db.session.add(sensor)
         db.session.commit()
         return "Created"
