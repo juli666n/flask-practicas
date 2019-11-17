@@ -23,23 +23,13 @@ class Plant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    plantTemperature = db.Column(db.Integer, nullable=False)
-    soilMoisture = db.Column(db.Integer, nullable=False)
-    plantLux = db.Column(db.Integer, nullable=False)
-    config = db.relationship("Config", uselist=False, back_populates="plant")
+    temperature = db.Column(db.Integer, nullable=False)
+    moisture = db.Column(db.Integer, nullable=False)
+    lux = db.Column(db.Integer, nullable=False)
+    is_selected = db.Column(db.Boolean)
 
     def __repr__(self):
         return '<Plant %r>' % self.name
-
-
-class Config(db.Model):
-
-    __tablename__ = 'config'
-
-    id = db.Column(db.Integer, primary_key=True)
-    plantId = db.Column(db.Integer, db.ForeignKey(
-        'plant.id'), nullable=False)
-    plant = db.relationship("Plant", back_populates="config")
 
 
 class Sensor(db.Model):
@@ -53,7 +43,7 @@ class Sensor(db.Model):
 
 
     def __repr__(self):
-        return '<Config %r>' % self.temperature
+        return '<Sensor %r>' % self.temperature
 
 
 @app.route('/')
@@ -64,40 +54,63 @@ def index():
 
 class PlantSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'plantTemperature', 'soilMoisture', 'lux')
+        fields = ('id', 'name', 'temperature', 'moisture', 'lux', 'is_selected')
 
 
 class SensorSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'temperature', 'moisture', 'plantLux')
+        fields = ('id', 'temperature', 'moisture', 'lux')
 
 
 # Init Schemas
-plant_schema = PlantSchema(many=True)
+plants_schema = PlantSchema(many=True)
 sensor_schema = SensorSchema(many=True)
 
 class Plants(Resource):
     def get(self):
         connection = db.session.connection()
         names = connection.execute("SELECT id, name FROM plant")
+        plants = plants_schema.dump(names)
+        return plants
+
+class PlantParam(Resource):
+    def get(self, id):
+        connection = db.session.connection()
+        name = connection.execute("SELECT * FROM plant WHERE id={}".format(id))
+        plant = plants_schema.dump(name)
+        return plant
+
+    def post(self, id):
+        data = request.get_json()
+        connection = db.session.connection()
+        connection.execute(
+            "UPDATE plant SET is_selected=%s WHERE id=%s", (data['is_selected'],id)
+        )
+        connection.execute(
+            "UPDATE plant SET is_selected=%s WHERE id!=%s", (0,id)
+        )
+        db.session.commit()
+        return "seleccionada"
+
+
+class Sensors(Resource):
+    def get(self):
+        connection = db.session.connection()
         sensingPlant=connection.execute("SELECT * FROM sensor")
-        plants = plant_schema.dump(names)
         sensors = sensor_schema.dump(sensingPlant)
-        return {
-            "plants": plants,
-            "sensors": sensors
-        }
+        return sensors
 
     def post(self):
         data = request.get_json()
-        config= Config(plantId=data['plantId'])
-        db.session.add(config)
+        sensor = Config(temperature=data['temperature'], moisture=data['moisture'], lux=data['lux'])
+        db.session.add(sensor)
         db.session.commit()
-        return {
-            "msg": "Configuración cargada"
-        }
+        return "Created"
+
 
 api.add_resource(Plants, '/api/plants')
+api.add_resource(PlantParam, '/api/plants/<string:id>')
+api.add_resource(Sensors, '/api/sensors')
 
 
 if __name__ == '__main__':

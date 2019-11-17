@@ -1,21 +1,29 @@
-window.onload = () => {
-    draw();
-}
-
 const form = document.querySelector('#save_plant');
-const opt = document.querySelector('#configSave');
+const opt = document.querySelector('#plant');
 const sensor = document.querySelector('#sensor');
 
-
-
-async function draw() {
-
-    let {plants} = await getPlants();
-    let {sensors} = await getPlants();
-    console.log(plants);
-
-
+async function drawTable() {
+    let sensors = await getSensor();
     let template_sensor = '';
+
+
+    sensors.forEach(sensor => {
+        template_sensor += `
+            <tr>
+                <td></td>
+                <td>${sensor.temperature}</td>
+                <td>${sensor.moisture}</td>
+                <td>${sensor.lux}</td>
+            </tr>
+        `;
+    });
+
+    sensor.innerHTML = template_sensor;
+}
+
+
+async function drawOption(){
+    let plants = await getPlants();
     let template_option = '';
 
     template_option += `<option selected value='default'>Seleccione planta</option>`;
@@ -27,18 +35,6 @@ async function draw() {
     });
 
     opt.innerHTML = template_option;
-
-    sensors.forEach(sensor => {
-        template_sensor += `
-            <tr>
-                <td>${sensor.temperarure}</td>
-                <td>${sensor.moisture}</td>
-                <td>${sensor.lux}</td>
-            </tr>
-        `;
-    });
-
-    sensor.innerHTML = template_sensor;
 }
 
 async function getPlants() {
@@ -46,29 +42,43 @@ async function getPlants() {
     return await response.json();
 }
 
+async function getSensor() {
+    const response = await fetch('/api/sensors');
+    return await response.json();
+}
+
+
 form.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.currentTarget);
-    const val = {
-        plantId: formData.get('plantId')
-    };
+    const id= formData.get('plant');
 
-    if (val.plantId !== 'default') {
-        fetch('/api/plants', {
+    if (id !== 'default') {
+        fetch(`/api/plants/${id}`, {
             method: 'POST',
-            body: JSON.stringify(val),
+            body: JSON.stringify({
+                is_selected: 1
+            }),
             headers:{
                 'Content-Type': 'application/json'
             }
         })
             .then(response => response.json())
             .then(data => {
-                alert(data.msg);
-                draw();
+                alert(`${data}`);
+                drawTable();
             });
     } else {
-        alert("Seleccione una planta");
+       alert("Seleccione una planta");
     }
 
 });
 
+window.setInterval(async () => {
+    await drawTable();
+}, 1500);
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    drawOption();
+    drawTable();
+});
