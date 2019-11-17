@@ -2,26 +2,6 @@ const form = document.querySelector('#save_plant');
 const opt = document.querySelector('#plant');
 const sensor = document.querySelector('#sensor');
 
-async function drawTable() {
-    let sensors = await getSensor();
-    let template_sensor = '';
-
-
-    sensors.forEach(sensor => {
-        template_sensor += `
-            <tr>
-                <td></td>
-                <td>${sensor.temperature}</td>
-                <td>${sensor.moisture}</td>
-                <td>${sensor.lux}</td>
-            </tr>
-        `;
-    });
-
-    sensor.innerHTML = template_sensor;
-}
-
-
 async function drawOption(){
     let plants = await getPlants();
     let template_option = '';
@@ -35,6 +15,32 @@ async function drawOption(){
     });
 
     opt.innerHTML = template_option;
+}
+
+let name = '';
+
+opt.addEventListener('change', (event) => {
+    let item = event.target;
+    name = item.options[item.selectedIndex].text;
+});
+
+async function drawTable() {
+    let sensors = await getSensor();
+    let template_sensor = '';
+
+
+    sensors.forEach(sensor => {
+        template_sensor += `
+            <tr>
+                <td>${name}</td>
+                <td>${sensor.temperature}</td>
+                <td>${sensor.moisture}</td>
+                <td>${sensor.lux}</td>
+            </tr>
+        `;
+    });
+
+    sensor.innerHTML = template_sensor;
 }
 
 async function getPlants() {
