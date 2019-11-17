@@ -1,12 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from flask_restful import Resource, Api
+from flask_marshmallow import Marshmallow
 
 
 app = Flask(__name__)
+#Config Api
+api = Api(app)
+ma = Marshmallow(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost:3307/plantsDatabase'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456789*@localhost:3307/plantsDatabase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -19,23 +23,13 @@ class Plant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    plantTemperature = db.Column(db.Integer, nullable=False)
-    soilMoisture = db.Column(db.Integer, nullable=False)
-    plantLux = db.Column(db.Integer, nullable=False)
-    config = db.relationship("Config", uselist=False, back_populates="plant")
+    temperature = db.Column(db.Integer, nullable=False)
+    moisture = db.Column(db.Integer, nullable=False)
+    lux = db.Column(db.Integer, nullable=False)
+    is_selected = db.Column(db.Boolean)
 
     def __repr__(self):
         return '<Plant %r>' % self.name
-
-
-class Config(db.Model):
-
-    __tablename__ = 'config'
-
-    id = db.Column(db.Integer, primary_key=True)
-    plantId = db.Column(db.Integer, db.ForeignKey(
-        'plant.id'), nullable=False)
-    plant = db.relationship("Plant", back_populates="config")
 
 
 class Sensor(db.Model):
@@ -48,29 +42,75 @@ class Sensor(db.Model):
     lux = db.Column(db.Integer, nullable=False)
 
 
-def __repr__(self):
-    return '<Config %r>' % self.param1
+    def __repr__(self):
+        return '<Sensor %r>' % self.temperature
 
 
 @app.route('/')
 def index():
-    connection = db.session.connection()
-    names = connection.execute(
-        "SELECT id, name FROM plant")
-    sensingPlant=connection.execute(
-        "SELECT * FROM sensor")
-    return render_template('index.html', plantNames=names, sensors=sensingPlant)
+    return render_template('index.html')
+
+# API
+
+class PlantSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'name', 'temperature', 'moisture', 'lux', 'is_selected')
 
 
-@app.route('/save_plant', methods=['POST'])
-def save_plant():
-    if request.method == 'POST':
-        config = request.form.get('configSave', '')
-        print(config)
-        confid = Config.query.filter_by(id='1').first()
-        confid.plantId = config
+class SensorSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'temperature', 'moisture', 'lux')
+
+
+# Init Schemas
+plants_schema = PlantSchema(many=True)
+sensor_schema = SensorSchema(many=True)
+
+class Plants(Resource):
+    def get(self):
+        connection = db.session.connection()
+        names = connection.execute("SELECT id, name FROM plant")
+        plants = plants_schema.dump(names)
+        return plants
+
+class PlantParam(Resource):
+    def get(self, id):
+        connection = db.session.connection()
+        name = connection.execute("SELECT * FROM plant WHERE id={}".format(id))
+        plant = plants_schema.dump(name)
+        return plant
+
+    def post(self, id):
+        data = request.get_json()
+        connection = db.session.connection()
+        connection.execute(
+            "UPDATE plant SET is_selected=%s WHERE id=%s", (data['is_selected'],id)
+        )
+        connection.execute(
+            "UPDATE plant SET is_selected=%s WHERE id!=%s", (0,id)
+        )
         db.session.commit()
-        return redirect('/')
+        return "seleccionada"
+
+
+class Sensors(Resource):
+    def get(self):
+        connection = db.session.connection()
+        sensingPlant=connection.execute("SELECT * FROM sensor")
+        sensors = sensor_schema.dump(sensingPlant)
+        return sensors
+
+    def post(self):
+        data = request.get_json()
+        connection = db.session.connection()
+        connection.execute("UPDATE sensor SET temperature=%s, moisture=%s, lux=%s WHERE id=1",(data['temperature'], data['moisture'], data['lux']))
+        db.session.commit()
+        return "Created"
+
+
+api.add_resource(Plants, '/api/plants')
+api.add_resource(PlantParam, '/api/plants/<string:id>')
+api.add_resource(Sensors, '/api/sensors')
 
 
 if __name__ == '__main__':
